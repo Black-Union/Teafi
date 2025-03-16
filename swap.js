@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import log from './logger.js'
 import dotenv from "dotenv";
 import ora from 'ora'
 import fs from 'fs'; // Import modul fs
