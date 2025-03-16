@@ -1,8 +1,7 @@
 import axios from "axios";
-import sendDepositTransaction from './utils/swap.js';
+import sendDepositTransaction from './swap.js';
 import { formatUnits } from "ethers";
-import log from './utils/logger.js'
-import banner from './utils/banner.js'
+import log from './logger.js'
 
 const TOKEN_ADDRESS = {
     WPOL: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
@@ -103,7 +102,6 @@ async function getPoints(address) {
     }
 }
 
-
 async function checkInStatus(address) {
     try {
         const response = await axios.get(`https://api.tea-fi.com/wallet/check-in/current?address=${address}`, {
@@ -137,7 +135,6 @@ async function checkIn(address) {
     }
 }
 
-
 async function checkInUser(address) {
     log.info(`📢 Trying to check latest checkin user...`)
     const lastCheckIn = await checkInStatus(address);
@@ -151,23 +148,36 @@ async function checkInUser(address) {
     }
 }
 
-(async () => {
-    log.info(banner)
-    await new Promise(resolve => setTimeout(resolve, 5 * 1000));
+async function runDailyTasks(maxIterations) {
     let counter = 0;
-
     const manualGasFee = "9000000000000000";
 
-    while (true) {
-        console.clear()
+    while (counter < maxIterations) {
+        console.clear();
         counter++;
-        log.info(`=X= ================ZLKCYBER================ =X=`)
-        log.info(`🔃 Processing Transaction ${counter} ( CTRL + C ) to exit..\n`)
+        log.info(`=X= ================ZLKCYBER================ =X=`);
+        log.info(`🔃 Processing Transaction ${counter} of ${maxIterations} (CTRL + C to exit)...\n`);
 
         const address = await sendTransaction(manualGasFee);
+        await checkInUser(address);
 
-        await checkInUser(address)
-        log.info(`=X= ======================================== =X=`)
+        log.info(`=X= ======================================== =X=`);
         await new Promise(resolve => setTimeout(resolve, 10 * 1000));
+    }
+
+    log.info(`✅ Processing complete. Total transactions: ${counter}`);
+}
+
+(async () => {
+    let runCount = 0;
+    const maxIterations = 5; // Atur jumlah pengulangan per hari di sini
+    const delay = 24 * 60 * 60 * 1000; // 24 jam dalam milidetik
+
+    while (true) {
+        runCount++;
+        log.info(`\n🚀 Starting Run #${runCount}...\n`);
+        await runDailyTasks(maxIterations);
+        log.info(`\n🔃 Waiting for 24 hours before next run...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
     }
 })();
