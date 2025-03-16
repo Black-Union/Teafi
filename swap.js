@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-import log from './logger.js'
 import dotenv from "dotenv";
 import ora from 'ora'
 import fs from 'fs'; // Import modul fs
@@ -11,7 +10,7 @@ const CONTRACT_ADDRESS = "0x1Cd0cd01c8C902AdAb3430ae04b9ea32CB309CF1"; //Ganti d
 const RPC_URL = "https://polygon-rpc.com";
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const MIN = 0.00001;
-const MAX = 0.001000;
+const MAX = 0.000100;
 
 // Load ABI from abi.json
 const abi = JSON.parse(fs.readFileSync('./abi.json', 'utf8'));
@@ -31,7 +30,7 @@ async function sendWrapTransaction() {
         const randomAmount = (Math.random() * (MAX - MIN) + MIN).toFixed(8);
         const amountToSend = ethers.parseEther(randomAmount.toString());
 
-        log.info(`🔹 Wrapping ${randomAmount} POL to TPOL...`);
+        log.info(`🔹 Wrapping ${randomAmount} WPOL to TPOL...`);
         const feeData = await provider.getFeeData();
 
         const gasPrice = feeData.gasPrice ? feeData.gasPrice * 125n / 100n : undefined; // increase gwei 25% for fast transaction
